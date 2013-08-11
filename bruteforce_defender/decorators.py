@@ -41,8 +41,8 @@ def protect(login):
         login_attempts = server.get(key)
 
         if login_attempts is None:
-            # set login attempts for user to 0
-            server.set(key, 0)
+            # set login attempts for user to 1
+            server.set(key, 1)
             server.expire(key, BLOCKING_TIME)
         elif int(login_attempts) >= LOGIN_ATTEMPTS:
             # if the user has exceeded count of login attempts
@@ -53,9 +53,12 @@ def protect(login):
             # try to authenticate user with credentials
             user = authenticate(username=username, password=password)
             # if credentials are wrong, increment login attempts counter
-            if not user:
+            # otherwise delete key from redis
+            if user is None:
                 server.incr(key, 1)
                 server.expire(key, BLOCKING_TIME)
+            else:
+                server.delete(key)
 
         return login(request)
 
