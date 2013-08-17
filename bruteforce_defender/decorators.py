@@ -40,11 +40,8 @@ def protect(login):
 
         login_attempts = server.get(key)
 
-        if login_attempts is None:
-            # set login attempts for user to 1
-            server.set(key, 1)
-            server.expire(key, BLOCKING_TIME)
-        elif int(login_attempts) >= LOGIN_ATTEMPTS:
+        if login_attempts is not None and \
+                int(login_attempts) >= LOGIN_ATTEMPTS:
             # if the user has exceeded count of login attempts
             # show him the message and redirect to home page
             messages.error(request, message)
